@@ -9,7 +9,7 @@ ESP32 controller runs a RTOS with two main tasks:
 When a iphone notification of a predefined type is received, the RTOS task updates the LED display to alert the user.  
 
 ## Why I am building this
-Staying focused and in a flow state is hard, and my phone is the biggest distraction
+Checking my phone constantly takes me out of the flow state when I am trying to be productive.  
 I try to put my phone out of sight when I want to stay focused, but in the back of my mind I am concerned I might miss an urgent notification.  
 I regularly find myself looking at my phone lock screen to check it for any important notifications. 
 The Light Phone will act as a passive background display I can put in my FOV to put my mind at ease. 
