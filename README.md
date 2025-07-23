@@ -15,3 +15,15 @@ I regularly find myself looking at my phone lock screen to check it for any impo
 The Light Phone will act as a passive background display I can put in my FOV to put my mind at ease.  
 It will only update its display when I get a notification from certain sources, e.g. a text from a family member.   
 In the future I can add some semantic parsing to see if a text message is actually urgent, but that is just a nice to have for now. 
+
+## Steps:
+1. Get hardware setup, verify basic WS2812b LED matrix commands work
+2. Get LED wave display task working on 16x16 matrix
+3. Create second task that updates display with simulated notifications
+4. Ensure both tasks run smoothly on FreeRTOS with Arduino framework
+5. Create BLE ANCS iphone driver that recevies notifications from phone
+6. Update 16x16 matrix when BLE notifications are received
+7. Integrate into RTOS and verify everything runs smoothly
+8. 3D print diffusion screen that goes across the LED matrix and makes it look prettier
+9. Add button functionality to turn on or off notification update task for really focused work
+10. Add finesses touches to make the display and notification updates really pretty
