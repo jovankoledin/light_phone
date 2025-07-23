@@ -26,4 +26,4 @@ In the future I can add some semantic parsing to see if a text message is actual
 7. Integrate into RTOS and verify everything runs smoothly
 8. 3D print diffusion screen that goes across the LED matrix and makes it look prettier
 9. Add button functionality to turn on or off notification update task for really focused work
-10. Add finesses touches to make the display and notification updates really pretty
+10. Add finesses touches to make the display and notification updates really pretty, BLE connection indicator
