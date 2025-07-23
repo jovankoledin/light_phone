@@ -4,7 +4,8 @@ A LED display that moves a wave like pattern across a screen and displays notifi
 ## How it works
 ESP32 controller runs a RTOS with two main tasks:  
 1. Display wave pattern on screen  
-2. Read BLE notifications from a connected iphone  
+2. Read BLE notifications from a connected iphone
+
 When a iphone notification of a predefined type is received, the RTOS task updates the LED display to alert the user.  
 
 ## Why I am building this
