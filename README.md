@@ -2,7 +2,7 @@
 A LED display that moves a wave like pattern across a screen and displays notification updates from your iphone  
 
 ## How it works
-ESP32 controller runs a RTOS with two main tasks:  
+ESP-WROOM-32 runs a RTOS with two main tasks:  
 1. Display wave pattern on screen  
 2. Read BLE notifications from a connected iphone
 
