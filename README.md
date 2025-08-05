@@ -27,3 +27,9 @@ In the future I can add some semantic parsing to see if a text message is actual
 8. 3D print diffusion screen that goes across the LED matrix and makes it look prettier
 9. Add button functionality to turn on or off notification update task for really focused work
 10. Add finesses touches to make the display and notification updates really pretty, BLE connection indicator
+
+
+### Dependencies
+1. Arduino IDE
+2. esp32 version 1.0.6 Board Package
+3. [ESP32 ANCS library](https://github.com/Smartphone-Companions/ESP32-ANCS-Notifications/tree/master?tab=readme-ov-file)
