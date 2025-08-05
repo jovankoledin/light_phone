@@ -30,6 +30,5 @@ In the future I can add some semantic parsing to see if a text message is actual
 
 
 ### Dependencies
-1. Arduino IDE
-2. esp32 version 1.0.6 Board Package
-3. [ESP32 ANCS library](https://github.com/Smartphone-Companions/ESP32-ANCS-Notifications/tree/master?tab=readme-ov-file)
+1. [esp32 version 1.0.6 Board Package](https://github.com/espressif/arduino-esp32/releases/tag/1.0.6)
+2. [ESP32 ANCS library](https://github.com/Smartphone-Companions/ESP32-ANCS-Notifications/tree/master?tab=readme-ov-file)
