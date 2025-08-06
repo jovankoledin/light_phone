@@ -1,12 +1,12 @@
-// @author James Hudson bugs.feedback.whatever@gmail.com
-// @todo license text and header - please see github project for license
+// @author Jovan Koledin
 
-// A simple example program to retrieve notifications from your device, and output them to the Serial console.
+// A Program that runs a LED matrix driver and a BLE ANCS stack on my ESP32
 
 
 // Header for this library, from https://www.github.com/Smartphone-Companions/ESP32-ANCS-Notifications.git
 #include "esp32notifications.h"
 #include <FastLED.h>
+#include <math.h>
 
 // For LED display
 #define MATRIX_WIDTH  16
@@ -26,26 +26,38 @@ void bleTask(void* pvParameters);
 void ledWaveTask(void* pvParameters) {
   (void) pvParameters;
 
+  float time = 0.0f;
+
   while (true) {
-    // For each pixel in the matrix, compute a sine-based hue wave
     for (int y = 0; y < MATRIX_HEIGHT; y++) {
       for (int x = 0; x < MATRIX_WIDTH; x++) {
-        // Compute an index into leds[] (row-major)
         int idx = y * MATRIX_WIDTH + x;
-        // Create a wave that moves in X over time and pulses per row
-        float value = sinf((x * 0.3f) + wavePhase) * 0.5f + 0.5f; 
-        uint8_t hue   = uint8_t((value * 255.0f + y * 16)) & 0xFF;
-        uint8_t bright= uint8_t(value * 192.0f + 64.0f);
-        leds[idx] = CHSV(hue, 200, bright);
+
+        // Combine multiple waveforms for a richer effect
+        float wave1 = sinf(x * 0.3f + time);
+        float wave2 = sinf(y * 0.2f + time * 0.8f);
+        float wave3 = sinf((x + y) * 0.25f + time * 1.2f);
+
+        // Mix waves and normalize
+        float mix = (wave1 + wave2 + wave3) / 3.0f;
+        mix = mix * 0.5f + 0.5f;  // Normalize to [0,1]
+
+        // Slightly shift the hue over time
+        uint8_t hue = uint8_t((mix * 192.0f) + time * 10) & 0xFF;
+
+        // Brightness softly modulated
+        uint8_t brightness = uint8_t(mix * 192.0f + 64.0f);
+
+        leds[idx] = CHSV(hue, 150, brightness);
       }
     }
+
     FastLED.show();
 
-    // Advance phase for animation
-    wavePhase += 0.1f;
-    if (wavePhase > 2 * PI) wavePhase -= 2 * PI;
+    // Advance animation time
+    time += 0.05f;
 
-    // ~50 Hz refresh
+    // ~50 Hz update rate
     vTaskDelay(pdMS_TO_TICKS(20));
   }
 }
@@ -90,7 +102,7 @@ void onNotificationArrived(const ArduinoNotification * notification, const Notif
     if (notification->category == CategoryIDIncomingCall) {
 		// If this is an incoming call, store it so that we can later send a user action.
         incomingCallNotificationUUID = notification->uuid;
-        Serial.println("--- INCOMING CALL: PRESS A TO ACCEPT, C TO REJECT ---"); 
+        Serial.println("--- INCOMING CALL ---"); 
     }
     else {
         incomingCallNotificationUUID = 0; // Make invalid - no incoming call
