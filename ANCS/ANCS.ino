@@ -6,6 +6,49 @@
 
 // Header for this library, from https://www.github.com/Smartphone-Companions/ESP32-ANCS-Notifications.git
 #include "esp32notifications.h"
+#include <FastLED.h>
+
+// For LED display
+#define MATRIX_WIDTH  16
+#define MATRIX_HEIGHT 16
+#define NUM_LEDS      (MATRIX_WIDTH * MATRIX_HEIGHT)
+#define DATA_PIN      5      // change to whichever GPIO your LED data line is on
+CRGB leds[NUM_LEDS];
+
+// Wave parameters
+static float wavePhase = 0;
+
+// Forward declarations
+void ledWaveTask(void* pvParameters);
+void bleTask(void* pvParameters);
+
+// ——— Definition of the LED-wave task ———
+void ledWaveTask(void* pvParameters) {
+  (void) pvParameters;
+
+  while (true) {
+    // For each pixel in the matrix, compute a sine-based hue wave
+    for (int y = 0; y < MATRIX_HEIGHT; y++) {
+      for (int x = 0; x < MATRIX_WIDTH; x++) {
+        // Compute an index into leds[] (row-major)
+        int idx = y * MATRIX_WIDTH + x;
+        // Create a wave that moves in X over time and pulses per row
+        float value = sinf((x * 0.3f) + wavePhase) * 0.5f + 0.5f; 
+        uint8_t hue   = uint8_t((value * 255.0f + y * 16)) & 0xFF;
+        uint8_t bright= uint8_t(value * 192.0f + 64.0f);
+        leds[idx] = CHSV(hue, 200, bright);
+      }
+    }
+    FastLED.show();
+
+    // Advance phase for animation
+    wavePhase += 0.1f;
+    if (wavePhase > 2 * PI) wavePhase -= 2 * PI;
+
+    // ~50 Hz refresh
+    vTaskDelay(pdMS_TO_TICKS(20));
+  }
+}
 
 // Create an interface to the BLE notification library
 BLENotifications notifications;
@@ -31,7 +74,6 @@ void onBLEStateChanged(BLENotifications::State state) {
   }
 }
 
-
 // A notification arrived from the mobile device, ie a social media notification or incoming call.
 // parameters:
 //  - notification: an Arduino-friendly structure containing notification information. Do not keep a
@@ -55,7 +97,6 @@ void onNotificationArrived(const ArduinoNotification * notification, const Notif
     }
 }
 
-
 // A notification was cleared
 void onNotificationRemoved(const ArduinoNotification * notification, const Notification * rawNotificationData) {
      Serial.print("Removed notification: ");   
@@ -64,29 +105,54 @@ void onNotificationRemoved(const ArduinoNotification * notification, const Notif
      Serial.println(notification->type);  
 }
 
+// BLE ANCS Task - runs on core 0
+void bleTask(void* pvParameters) {
+  // Initialize BLE ANCS
+  Serial.println("Starting BLE ANCS on core 0...");
+  notifications.begin("Jovan's ESP32");
+  notifications.setConnectionStateChangedCallback(onBLEStateChanged);
+  notifications.setNotificationCallback(onNotificationArrived);
+  notifications.setRemovedCallback(onNotificationRemoved);
 
-// Standard Arduino function which is called once when the device first starts up
+  // Optional: if library requires a loop call
+  while (true) {
+    // Uncomment if required by esp32notifications:
+    // notifications.loop();
+    vTaskDelay(pdMS_TO_TICKS(100));
+  }
+}
+
 void setup() {
-  // Button configuration. It is usual to have buttons configured as INPUT_PULLUP in the hardware design,
-  // but check the details for your specific device 
+  Serial.begin(115200);
 
-    Serial.begin(115200);
-    while(!Serial) {
-        delay(10);
-    }
+  // Initialize LED matrix (FastLED)
+  FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
+  FastLED.setBrightness(64);
 
-    Serial.println("ESP32-ANCS-Notifications Example");
-    Serial.println("------------------------------------------");    
+  // Create BLE task pinned to core 0
+  xTaskCreatePinnedToCore(
+    bleTask,        // task function
+    "BLE ANCS Task", // task name
+    8192,           // stack size (bytes)
+    nullptr,        // parameters
+    2,              // priority (higher than LED)
+    nullptr,        // task handle
+    0               // run on core 0
+  );
 
-    // Set up the BLENotification library
-    notifications.begin("Jovan's ESP32");
-    notifications.setConnectionStateChangedCallback(onBLEStateChanged);
-    notifications.setNotificationCallback(onNotificationArrived);
-    notifications.setRemovedCallback(onNotificationRemoved);
+  // Create LED wave task pinned to core 1
+  xTaskCreatePinnedToCore(
+    ledWaveTask,
+    "LED Wave Task",
+    4096,
+    nullptr,
+    1,
+    nullptr,
+    1
+  );
 }
 
 
 // Standard Arduino function that is called in an endless loop after setup
 void loop() {   
-
 }
