@@ -29,6 +29,7 @@ In the future I can add some semantic parsing to see if a text message is actual
 10. Add finesses touches to make the display and notification updates really pretty, BLE connection indicator
 
 
-### Dependencies
-1. [esp32 version 1.0.6 Board Package](https://github.com/espressif/arduino-esp32/releases/tag/1.0.6)
-2. [ESP32 ANCS library](https://github.com/Smartphone-Companions/ESP32-ANCS-Notifications/tree/master?tab=readme-ov-file)
+### Dependencies (VERSIONS MUST BE MATCHED)
+1. [esp32 Board Package version 1.0.6](https://github.com/espressif/arduino-esp32/releases/tag/1.0.6)
+2. [ESP32 ANCS library version 0.0.1](https://github.com/Smartphone-Companions/ESP32-ANCS-Notifications/releases/tag/v0.0.1)
+3. [FastLED version 3.5.0](https://github.com/FastLED/FastLED/releases/tag/3.5.0)
