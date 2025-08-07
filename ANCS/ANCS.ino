@@ -1,12 +1,13 @@
 // @author Jovan Koledin
+// @modified by Gemini
 
 // A Program that runs a LED matrix driver and a BLE ANCS stack on my ESP32
-
 
 // Header for this library, from https://www.github.com/Smartphone-Companions/ESP32-ANCS-Notifications.git
 #include "esp32notifications.h"
 #include <FastLED.h>
 #include <math.h>
+#include <string.h>
 
 // For LED display
 #define MATRIX_WIDTH  16
@@ -15,50 +16,89 @@
 #define DATA_PIN      5      // change to whichever GPIO your LED data line is on
 CRGB leds[NUM_LEDS];
 
-// Wave parameters
-static float wavePhase = 0;
+// --- MODIFICATION START ---
+// Global state for "mom" notification
+// 'volatile' is used because these are accessed by the main loop and a callback function (interrupt)
+volatile bool momNotificationActive = false; // Set to false by default
+volatile unsigned long momNotificationTimestamp = 0; // To time out the notification display
+const char* matching_string = "mom";
+// --- MODIFICATION END ---
+
 
 // Forward declarations
 void ledWaveTask(void* pvParameters);
 void bleTask(void* pvParameters);
 
 // ——— Definition of the LED-wave task ———
+// This function has been significantly updated for new visual effects.
 void ledWaveTask(void* pvParameters) {
   (void) pvParameters;
 
-  float time = 0.0f;
+  // --- New animation variables ---
+  uint32_t time = 0; // Use a 32-bit integer for time to prevent overflow issues
+  // The scale determines the "zoom" level of the noise pattern.
+  // Larger values result in smaller, more detailed patterns.
+  // Smaller values result in larger, smoother patterns.
+  uint16_t scale = 30; 
 
   while (true) {
-    for (int y = 0; y < MATRIX_HEIGHT; y++) {
-      for (int x = 0; x < MATRIX_WIDTH; x++) {
-        int idx = y * MATRIX_WIDTH + x;
+    // --- Check if the "mom" notification alert should be turned off ---
+    // It will be active for 30 seconds.
+    if (momNotificationActive && (millis() - momNotificationTimestamp > 30000)) {
+      momNotificationActive = false;
+      Serial.println("Mom notification alert has timed out.");
+    }
 
-        // Combine multiple waveforms for a richer effect
-        float wave1 = sinf(x * 0.3f + time);
-        float wave2 = sinf(y * 0.2f + time * 0.8f);
-        float wave3 = sinf((x + y) * 0.25f + time * 1.2f);
+    // --- Main Rendering Logic ---
+    if (momNotificationActive) {
+      // --- "Mom" Notification Pattern: Pulsing Red ---
+      // This pattern is shown when a notification from "mom" is active.
+      // A sine wave is used to create a smooth pulsing effect for the brightness.
+      uint8_t pulse = (sin(millis() / 400.0f) + 1) / 2.0f * 120 + 30; // Varies brightness between 30 and 150
 
-        // Mix waves and normalize
-        float mix = (wave1 + wave2 + wave3) / 3.0f;
-        mix = mix * 0.5f + 0.5f;  // Normalize to [0,1]
+      for (int i = 0; i < NUM_LEDS; i++) {
+        // Fill the entire matrix with a red hue (0) and max saturation (255)
+        leds[i] = CHSV(0, 255, pulse);
+      }
+    } else {
+      // --- New Default Pattern: "Calm Aurora Noise" ---
+      // This pattern uses Perlin noise to create a slow, gentle, and ever-shifting
+      // field of color, much like an aurora.
+      
+      // The time variable is used as the z-axis in the 3D noise field,
+      // which makes the pattern animate over time.
+      for (int y = 0; y < MATRIX_HEIGHT; y++) {
+        for (int x = 0; x < MATRIX_WIDTH; x++) {
+          int idx = y * MATRIX_WIDTH + x;
 
-        // Slightly shift the hue over time
-        uint8_t hue = uint8_t((mix * 192.0f) + time * 10) & 0xFF;
+          // FastLED's inoise8 function is used to get a noise value for each pixel.
+          // We provide the x, y, and a time (z) coordinate.
+          // The result is a smooth, continuous value between 0 and 255.
+          uint8_t noise_val = inoise8(x * scale, y * scale, time);
 
-        // Brightness softly modulated
-        uint8_t brightness = uint8_t(mix * 192.0f + 64.0f);
+          // We use the noise value to set the hue of the pixel.
+          // A small offset based on time is added to make the colors shift slowly.
+          uint8_t hue = noise_val + (time / 20);
 
-        leds[idx] = CHSV(hue, 150, brightness);
+          // The saturation is kept high for rich colors.
+          uint8_t saturation = 220;
+
+          // The brightness is set to a consistent, medium-low value.
+          // This prevents any LEDs from turning off and keeps the visual calm.
+          uint8_t brightness = 80;
+
+          leds[idx] = CHSV(hue, saturation, brightness);
+        }
       }
     }
 
     FastLED.show();
 
-    // Advance animation time
-    time += 0.05f;
+    // Advance animation time. A larger increment means a faster animation.
+    time += 10;
 
-    // ~50 Hz update rate
-    vTaskDelay(pdMS_TO_TICKS(20));
+    // ~30 Hz update rate is plenty for this slow animation
+    vTaskDelay(pdMS_TO_TICKS(33));
   }
 }
 
@@ -69,7 +109,6 @@ BLENotifications notifications;
 uint32_t incomingCallNotificationUUID;
 
 // This callback will be called when a Bluetooth LE connection is made or broken.
-// You can update the ESP 32's UI or take other action here.
 void onBLEStateChanged(BLENotifications::State state) {
   switch(state) {
       case BLENotifications::StateConnected:
@@ -78,34 +117,37 @@ void onBLEStateChanged(BLENotifications::State state) {
 
       case BLENotifications::StateDisconnected:
           Serial.println("StateDisconnected - disconnected from a phone or tablet"); 
-          /* We need to startAdvertising on disconnection, otherwise the ESP 32 will now be invisible.
-          IMO it would make sense to put this in the library to happen automatically, but some people in the Espressif forums
-          were requesting that they would like manual control over re-advertising.*/
           notifications.startAdvertising(); 
           break; 
   }
 }
 
-// A notification arrived from the mobile device, ie a social media notification or incoming call.
-// parameters:
-//  - notification: an Arduino-friendly structure containing notification information. Do not keep a
-//                  pointer to this data - it will be destroyed after this function.
-//  - rawNotificationData: a pointer to the underlying data. It contains the same information, but is
-//                         not beginner-friendly. For advanced use-cases.
+// A notification arrived from the mobile device.
+// This function is modified to check for the sender's name.
 void onNotificationArrived(const ArduinoNotification * notification, const Notification * rawNotificationData) {
     Serial.print("Got notification: ");   
-    Serial.println(notification->title); // The title, ie name of who sent the message
-    Serial.println(notification->message); // The detail, ie "be home for dinner at 7".
-    Serial.println(notification->type);  // Which app sent it
-    Serial.println(notifications.getNotificationCategoryDescription(notification->category));  // ie "social media"
-    Serial.println(notification->categoryCount); // How may other notifications are there from this app (ie badge number)
+    Serial.println(notification->title);
+    Serial.println(notification->message);
+    Serial.println(notification->type);
+    Serial.println(notifications.getNotificationCategoryDescription(notification->category));
+    Serial.println(notification->categoryCount);
+
+    // --- MODIFICATION START ---
+    // Check if the notification title contains the matching string (e.g., "mom")
+    // strstr is used to find a substring, making it more flexible.
+    if (notification->title && strstr(notification->title.c_str(), matching_string) != NULL) {        
+        Serial.println("--- NOTIFICATION FROM MOM! ---");
+        momNotificationActive = true;
+        momNotificationTimestamp = millis(); // Record the time the notification arrived
+    }
+    // --- MODIFICATION END ---
+
     if (notification->category == CategoryIDIncomingCall) {
-		// If this is an incoming call, store it so that we can later send a user action.
         incomingCallNotificationUUID = notification->uuid;
         Serial.println("--- INCOMING CALL ---"); 
     }
     else {
-        incomingCallNotificationUUID = 0; // Make invalid - no incoming call
+        incomingCallNotificationUUID = 0;
     }
 }
 
@@ -119,17 +161,13 @@ void onNotificationRemoved(const ArduinoNotification * notification, const Notif
 
 // BLE ANCS Task - runs on core 0
 void bleTask(void* pvParameters) {
-  // Initialize BLE ANCS
   Serial.println("Starting BLE ANCS on core 0...");
   notifications.begin("Jovan's ESP32");
   notifications.setConnectionStateChangedCallback(onBLEStateChanged);
   notifications.setNotificationCallback(onNotificationArrived);
   notifications.setRemovedCallback(onNotificationRemoved);
 
-  // Optional: if library requires a loop call
   while (true) {
-    // Uncomment if required by esp32notifications:
-    // notifications.loop();
     vTaskDelay(pdMS_TO_TICKS(100));
   }
 }
@@ -139,17 +177,18 @@ void setup() {
 
   // Initialize LED matrix (FastLED)
   FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
-  FastLED.setBrightness(64);
+  // The overall brightness is set here. The animation can still control individual LED brightness.
+  FastLED.setBrightness(80); 
 
   // Create BLE task pinned to core 0
   xTaskCreatePinnedToCore(
-    bleTask,        // task function
-    "BLE ANCS Task", // task name
-    8192,           // stack size (bytes)
-    nullptr,        // parameters
-    2,              // priority (higher than LED)
-    nullptr,        // task handle
-    0               // run on core 0
+    bleTask,
+    "BLE ANCS Task",
+    8192,
+    nullptr,
+    1,
+    nullptr,
+    0
   );
 
   // Create LED wave task pinned to core 1
@@ -158,13 +197,12 @@ void setup() {
     "LED Wave Task",
     4096,
     nullptr,
-    1,
+    2,
     nullptr,
     1
   );
 }
 
-
-// Standard Arduino function that is called in an endless loop after setup
-void loop() {   
+void loop() {
+  // The main loop is empty because all work is done in the FreeRTOS tasks.
 }
