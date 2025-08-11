@@ -16,13 +16,11 @@
 #define DATA_PIN      5      // change to whichever GPIO your LED data line is on
 CRGB leds[NUM_LEDS];
 
-// --- MODIFICATION START ---
-// Global state for "mom" notification
+// Global state for chosen notification
 // 'volatile' is used because these are accessed by the main loop and a callback function (interrupt)
-volatile bool momNotificationActive = false; // Set to false by default
-volatile unsigned long momNotificationTimestamp = 0; // To time out the notification display
-const char* matching_string = "mom";
-// --- MODIFICATION END ---
+volatile bool chosenNotificationActive = false; // Set to false by default
+volatile unsigned long chosenNotificationTimestamp = 0; // To time out the notification display
+const char* matching_string = "Claire";
 
 
 // Forward declarations
@@ -44,13 +42,13 @@ void ledWaveTask(void* pvParameters) {
   while (true) {
     // --- Check if the "mom" notification alert should be turned off ---
     // It will be active for 30 seconds.
-    if (momNotificationActive && (millis() - momNotificationTimestamp > 30000)) {
-      momNotificationActive = false;
-      Serial.println("Mom notification alert has timed out.");
+    if (chosenNotificationActive && (millis() - chosenNotificationTimestamp > 30000)) {
+      chosenNotificationActive = false;
+      Serial.println("Chosen notification alert has timed out.");
     }
 
     // --- Main Rendering Logic ---
-    if (momNotificationActive) {
+    if (chosenNotificationActive) {
       // --- "Mom" Notification Pattern: Pulsing Red ---
       // This pattern is shown when a notification from "mom" is active.
       // A sine wave is used to create a smooth pulsing effect for the brightness.
@@ -136,9 +134,10 @@ void onNotificationArrived(const ArduinoNotification * notification, const Notif
     // Check if the notification title contains the matching string (e.g., "mom")
     // strstr is used to find a substring, making it more flexible.
     if (notification->title && strstr(notification->title.c_str(), matching_string) != NULL) {        
-        Serial.println("--- NOTIFICATION FROM MOM! ---");
-        momNotificationActive = true;
-        momNotificationTimestamp = millis(); // Record the time the notification arrived
+        Serial.println("--- NOTIFICATION FROM Claire! ---");
+        chosenNotificationActive = true;
+        Serial.println("Chosen notification activated");
+        chosenNotificationTimestamp = millis(); // Record the time the notification arrived
     }
     // --- MODIFICATION END ---
 
