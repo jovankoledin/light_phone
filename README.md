@@ -2,7 +2,12 @@
 A LED display that moves a lava lamp like pattern across a screen and flashes red when you get a important iPhone notification.
 
 ## Demo 
-![Alt text](./visuals/demo.gif)
+
+#### Default State
+![Alt text](./visuals/notification_vid.gif)
+
+#### Important Notification received
+![Alt text](./visuals/default_vid.gif)
 
 ## Why I Built it
 Checking my phone takes me out of the flow state when I am trying to be productive at my computer.
