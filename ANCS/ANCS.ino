@@ -20,7 +20,10 @@ CRGB leds[NUM_LEDS];
 // 'volatile' is used because these are accessed by the main loop and a callback function (interrupt)
 volatile bool chosenNotificationActive = false; // Set to false by default
 volatile unsigned long chosenNotificationTimestamp = 0; // To time out the notification display
-const char* matching_string = "Claire";
+const char* matching_string1 = "Claire";
+const char* matching_string2 = "Mom";
+const char* matching_string3 = "Dad";
+
 
 
 // Forward declarations
@@ -120,6 +123,12 @@ void onBLEStateChanged(BLENotifications::State state) {
   }
 }
 
+bool anyMatches(String title, const char* check1, const char* check2, const char* check3){
+  return ((strstr(title.c_str(), check1) != NULL) 
+        || (strstr(title.c_str(), check2) != NULL) 
+        ||  (strstr(title.c_str(), check3) != NULL));
+}
+
 // A notification arrived from the mobile device.
 // This function is modified to check for the sender's name.
 void onNotificationArrived(const ArduinoNotification * notification, const Notification * rawNotificationData) {
@@ -133,8 +142,7 @@ void onNotificationArrived(const ArduinoNotification * notification, const Notif
     // --- MODIFICATION START ---
     // Check if the notification title contains the matching string (e.g., "mom")
     // strstr is used to find a substring, making it more flexible.
-    if (notification->title && strstr(notification->title.c_str(), matching_string) != NULL) {        
-        Serial.println("--- NOTIFICATION FROM Claire! ---");
+    if (notification->title && anyMatches(notification->title, matching_string1, matching_string2, matching_string3)) {     
         chosenNotificationActive = true;
         Serial.println("Chosen notification activated");
         chosenNotificationTimestamp = millis(); // Record the time the notification arrived
@@ -161,7 +169,7 @@ void onNotificationRemoved(const ArduinoNotification * notification, const Notif
 // BLE ANCS Task - runs on core 0
 void bleTask(void* pvParameters) {
   Serial.println("Starting BLE ANCS on core 0...");
-  notifications.begin("Jovan's ESP32");
+  notifications.begin("LightPhone");
   notifications.setConnectionStateChangedCallback(onBLEStateChanged);
   notifications.setNotificationCallback(onNotificationArrived);
   notifications.setRemovedCallback(onNotificationRemoved);

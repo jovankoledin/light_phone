@@ -2,7 +2,7 @@
 A LED display that moves a lava lamp like pattern across a screen and flashes red when you get a important notification 
 
 ## Demo 
-![Alt text](demo.mov)
+[![Alt text](./visuals/front.jpg)](https://raw.githubusercontent.com/jovankoledin/light_phone/main/visuals/demo.MP4)  
 
 ## Why I am building this
 Me checking my phone often takes me out of the flow state when I am trying to be productive at my computer.  
@@ -11,6 +11,13 @@ I regularly find myself looking at my phone lock screen to check it for any impo
 The Light Phone will act as a passive background display I can put in my FOV to put my mind at ease.  
 It will only update its display when I get a certain type of notification, e.g. a text from a family member.   
 In the future I can add some semantic parsing to see if a text message is actually urgent, but that is just a nice to have for now. 
+
+## Hardware Up Close
+![Alt text](./visuals/front.jpg) 
+![Alt text](./visuals/side.jpg) 
+![Alt text](./visuals/leds.jpg) 
+![Alt text](./visuals/inside.jpg) 
+
 
 ### Dependencies (VERSIONS MUST BE MATCHED)
 1. [esp32 Board Package version 1.0.6](https://github.com/espressif/arduino-esp32/releases/tag/1.0.6)
