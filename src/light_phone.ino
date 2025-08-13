@@ -1,10 +1,9 @@
 // @author Jovan Koledin
-// @modified by Gemini
-
 // A Program that runs a LED matrix driver and a BLE ANCS stack on my ESP32
 
 // Header for this library, from https://www.github.com/Smartphone-Companions/ESP32-ANCS-Notifications.git
 #include "esp32notifications.h"
+
 #include <FastLED.h>
 #include <math.h>
 #include <string.h>
