@@ -15,6 +15,8 @@ By default it is a relaxing lava lamp like display, but whenever I get an import
 ![Alt text](./visuals/side.jpg) 
 ![Alt text](./visuals/leds.jpg) 
 ![Alt text](./visuals/inside.jpg) 
+### BLE Connection
+![Alt text](./visuals/ble.png)
 
 ## How it Works
 Inside is just an ESP32 hooked up to a 16x16 led display.
