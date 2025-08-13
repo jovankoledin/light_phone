@@ -1,5 +1,5 @@
 # Light Phone
-A LED display that moves a lava lamp like pattern across a screen and flashes red when you get a important notification 
+A LED display that moves a lava lamp like pattern across a screen and flashes red when you get a important iPhone notification.
 
 ## Demo 
 ![Alt text](./visuals/demo.gif)
@@ -34,4 +34,4 @@ the Light Phone goes back to its default Lava Lamp display.
 ### Hardware
 1. ESP-WROOM-32 ($3)
 2. 16x16 WS2812b LED Matrix ($15)
-3. 3D printed enclosure (~free)
+3. [3D printed enclosure](https://www.printables.com/model/705945-16x16-led-matrix-frame-with-diffuser-grid/files) (~free)
