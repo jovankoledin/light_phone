@@ -17,10 +17,10 @@ By default it is a relaxing lava lamp like display, but whenever I get an import
 ![Alt text](./visuals/inside.jpg) 
 
 ## How it Works
-Inside is just an ESP32 hooked up to a 16x16 led display.  
+Inside is just an ESP32 hooked up to a 16x16 led display.
 The ESP32 runs two RTOS tasks (update LED display, and run Bluetooth ops). The Bluetooth ops took the most time to get working out of anything on this project.
 It is a Bluetooth Low Energy (BLE) protocol, specifically a Apple Notification Center Service (ANCS) Client & Service that can connect to your iPhone.
-The BLE system before it connects acts as a client and searches for a ANCS device (i.e. your iPhone). Once the BLE handshake is performed with your phone and a connection is made,
+The BLE system before it connects acts as a Client and searches for a ANCS device (i.e. your iPhone). Once the two devices find eachother and connect
 the BLE system switches to being a Service and your iPhone becomes the Client, the iPhone then streams notifications data packets to your Light Phone whenever one appears.
 When your Light Phone gets a notification it parses it and checks to see if any of the important contacts are referenced in the notification. If an important contact is referenced,
 then the BLE task sets a notification received flag which triggers a flashing red pattern to pulse on the LED display for 30 sec. Once the red pattern is done flashing,
