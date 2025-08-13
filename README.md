@@ -2,7 +2,7 @@
 A LED display that moves a lava lamp like pattern across a screen and flashes red when you get a important notification 
 
 ## Demo 
-[![Alt text](./visuals/front.jpg)](https://raw.githubusercontent.com/jovankoledin/light_phone/main/visuals/demo.MP4)  
+![Alt text](./visuals/demo.gif)
 
 ## Why I am building this
 Me checking my phone often takes me out of the flow state when I am trying to be productive at my computer.  
