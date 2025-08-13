@@ -1,19 +1,21 @@
 # Light Phone
 A LED display that moves a lava lamp like pattern across a screen and flashes red when you get a important iPhone notification.
 
-## Demo 
+## Quick Demo 
 
 #### Default State
 ![Alt text](./visuals/default_vid.gif)
 
-#### Important Notification received
+#### Important Notification State
 ![Alt text](./visuals/notification_vid.gif)
+
+[See this for a full demo](https://github.com/jovankoledin/light_phone/blob/main/visuals/demo_higher_res.MP4)
 
 ## Why I Built it
 Checking my phone takes me out of the flow state when I am trying to be productive at my computer.
 I try to put my phone out of sight when I want to stay focused, but in the back of my mind I am concerned I might miss an important notification.
 The Light Phone acts as a passive background display I can put in my FOV to put my mind at ease.
-By default it is a relaxing lava lamp like display, but whenever I get an important notification (i.e. text from mom) it flashes red.
+By default it resembles a relaxing lava lamp, but whenever I get an important notification (i.e. text from mom) it flashes red.
 
 ## Hardware Up Close
 ![Alt text](./visuals/front.jpg) 
