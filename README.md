@@ -1,12 +1,8 @@
 # Light Phone
 A LED display that moves a lava lamp like pattern across a screen and flashes red when you get a important notification 
 
-## How it works
-ESP-WROOM-32 runs a RTOS with two main tasks:  
-1. Display wave pattern on screen (Core 1)
-2. Read BLE notifications from a connected iphone (Core 0)
-
-When a iphone notification of a predefined type is received, the RTOS task updates the LED display to alert the user.  
+## Demo 
+![Alt text](demo.mov)
 
 ## Why I am building this
 Me checking my phone often takes me out of the flow state when I am trying to be productive at my computer.  
