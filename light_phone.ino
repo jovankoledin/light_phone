@@ -2,8 +2,11 @@
 // A Program that runs a LED matrix driver and a BLE ANCS stack on my ESP32
 
 // Header for this library, from https://www.github.com/Smartphone-Companions/ESP32-ANCS-Notifications.git
+#include <WiFi.h>
+#include <ESPmDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
 #include "esp32notifications.h"
-
 #include <FastLED.h>
 #include <math.h>
 #include <string.h>
@@ -22,8 +25,8 @@ volatile unsigned long chosenNotificationTimestamp = 0; // To time out the notif
 const char* matching_string1 = "Claire";
 const char* matching_string2 = "Mom";
 const char* matching_string3 = "Dad";
-
-
+const char* ssid = "Toa_the_Queen";
+const char* password = "browndog!!@@2001";
 
 // Forward declarations
 void ledWaveTask(void* pvParameters);
@@ -181,6 +184,55 @@ void bleTask(void* pvParameters) {
 void setup() {
   Serial.begin(115200);
 
+  // --- OTA Logic ---
+  Serial.println("Booting...");
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  while (WiFi.waitForConnectResult() != WL_CONNECTED) {
+    Serial.println("Connection Failed! Rebooting...");
+    delay(5000);
+    ESP.restart();
+  }
+
+  // Configure OTA
+  ArduinoOTA.setHostname("LightPhone-ESP32"); // Sets the name that appears in the IDE
+  
+  // You can also set a password for security
+  // ArduinoOTA.setPassword("your_password");
+
+  ArduinoOTA
+    .onStart([]() {
+      String type;
+      if (ArduinoOTA.getCommand() == U_FLASH)
+        type = "sketch";
+      else // U_SPIFFS
+        type = "filesystem";
+      Serial.println("Start updating " + type);
+      // Optional: Stop LED animations or BLE tasks here
+    })
+    .onEnd([]() {
+      Serial.println("\nEnd");
+      // Optional: Clear LEDs or perform cleanup
+    })
+    .onProgress([](unsigned int progress, unsigned int total) {
+      Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    })
+    .onError([](ota_error_t error) {
+      Serial.printf("Error[%u]: ", error);
+      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+    });
+
+  ArduinoOTA.begin();
+
+  Serial.println("Ready for OTA");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+  // OTA logic end
+
   // Initialize LED matrix (FastLED)
   FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
   // The overall brightness is set here. The animation can still control individual LED brightness.
@@ -210,5 +262,6 @@ void setup() {
 }
 
 void loop() {
+  ArduinoOTA.handle();
   // The main loop is empty because all work is done in the FreeRTOS tasks.
 }
