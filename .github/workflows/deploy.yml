@@ -1,0 +1,32 @@
+name: Build and Deploy to ESP32
+
+# This workflow runs on every push to the 'main' branch
+on:
+  push:
+    branches:
+      - workflows
+
+jobs:
+  build-and-deploy:
+    # This is the crucial part: it tells the job to run on your local machine
+    runs-on: self-hosted
+
+    steps:
+      # 1. Checks out your repository code so the runner can access it
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Sets up Python, which is needed by PlatformIO
+      #- name: Set up Python
+      #  uses: actions/setup-python@v5
+      #  with:
+      #    python-version: '3.10.11'
+
+      # 3. Installs PlatformIO Core
+      - name: Install PlatformIO
+        run: pip install -U platformio
+
+      # 4. Compiles the code and uploads it via OTA
+      # It uses the secrets you'll configure in the next step
+      - name: Build and Upload Firmware
+        run: platformio run --target upload -e esp32dev
