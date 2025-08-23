@@ -4,7 +4,7 @@ name: Build and Deploy to ESP32
 on:
   push:
     branches:
-      - main
+      - workflows
 
 jobs:
   build-and-deploy:
