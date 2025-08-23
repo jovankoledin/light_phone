@@ -34,10 +34,9 @@ When your Light Phone gets a notification data packet it parses it and checks to
 the BLE task sets a notification received flag which triggers a flashing red pattern to pulse on the LED display for 30 sec. Once the red pattern is done flashing,
 the Light Phone goes back to its default Lava Lamp display.
 
-### Software Dependencies (VERSIONS MUST BE MATCHED)
-1. [esp32 Board Package version 1.0.6](https://github.com/espressif/arduino-esp32/releases/tag/1.0.6)
-2. [ESP32 ANCS library version 0.0.1](https://github.com/Smartphone-Companions/ESP32-ANCS-Notifications/releases/tag/v0.0.1)
-3. [FastLED version 3.5.0](https://github.com/FastLED/FastLED/releases/tag/3.5.0)
+## Bonus
+- Implemented OTA updates 
+- Implement CI/CD pipeline with self hosted Github actions to deploy my firmware automatically via OTA when I push to github
 
 ### Hardware
 1. ESP-WROOM-32 ($3)
