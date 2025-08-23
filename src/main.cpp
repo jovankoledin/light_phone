@@ -88,7 +88,7 @@ void ledWaveTask(void* pvParameters) {
 
           // The brightness is set to a consistent, medium-low value.
           // This prevents any LEDs from turning off and keeps the visual calm.
-          uint8_t brightness = 15;
+          uint8_t brightness = 80;
 
           leds[idx] = CHSV(hue, saturation, brightness);
         }
