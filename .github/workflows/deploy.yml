@@ -29,9 +29,4 @@ jobs:
       # 4. Compiles the code and uploads it via OTA
       # It uses the secrets you'll configure in the next step
       - name: Build and Upload Firmware
-        run: |
-          platformio run --target upload \
-            -e esp32dev \
-            --upload-port LightPhone-ESP32.local \
-            -D WIFI_SSID='"${{ secrets.WIFI_SSID }}"' \
-            -D WIFI_PASSWORD='"${{ secrets.WIFI_PASSWORD }}"'
+        run: platformio run --target upload -e esp32dev --upload-port LightPhone-ESP32.local -D WIFI_SSID='"${{ secrets.WIFI_SSID }}"' -D WIFI_PASSWORD='"${{ secrets.WIFI_PASSWORD }}"'
