@@ -199,7 +199,7 @@ void setup() {
   
   // You can also set a password for security
   // ArduinoOTA.setPassword("your_password");
-
+  // Lambda!
   ArduinoOTA
     .onStart([]() {
       String type;
