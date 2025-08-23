@@ -25,8 +25,8 @@ volatile unsigned long chosenNotificationTimestamp = 0; // To time out the notif
 const char* matching_string1 = "Claire";
 const char* matching_string2 = "Mom";
 const char* matching_string3 = "Dad";
-const char* ssid = "Toa_the_Queen";
-const char* password = "browndog!!@@2001";
+const char* ssid = "WIFI_SSID";
+const char* password = "WIFI_PASSWORD";
 
 // Forward declarations
 void ledWaveTask(void* pvParameters);
