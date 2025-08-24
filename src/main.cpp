@@ -20,7 +20,7 @@ CRGB leds[NUM_LEDS];
 
 // Global state for chosen notification
 // 'volatile' is used because these are accessed by the main loop and a callback function (interrupt)
-volatile bool chosenNotificationActive = false; // Set to false by default
+volatile bool chosenNotificationActive = true; // Set to false by default
 volatile unsigned long chosenNotificationTimestamp = 0; // To time out the notification display
 const char* matching_string1 = "Claire";
 const char* matching_string2 = "Mom";
