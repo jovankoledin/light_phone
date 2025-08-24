@@ -125,7 +125,7 @@ void onBLEStateChanged(BLENotifications::State state) {
   }
 }
 
-bool anyMatches(String title, const char* check1, const char* check2, const char* check3){
+bool anyMatches(const String& title, const char* check1, const char* check2, const char* check3){
   return ((strstr(title.c_str(), check1) != NULL) 
         || (strstr(title.c_str(), check2) != NULL) 
         ||  (strstr(title.c_str(), check3) != NULL));
@@ -144,7 +144,7 @@ void onNotificationArrived(const ArduinoNotification * notification, const Notif
     // --- MODIFICATION START ---
     // Check if the notification title contains the matching string (e.g., "mom")
     // strstr is used to find a substring, making it more flexible.
-    if (notification->title && anyMatches(notification->title, matching_string1, matching_string2, matching_string3)) {     
+    if (anyMatches(notification->title, matching_string1, matching_string2, matching_string3)) {     
         chosenNotificationActive = true;
         Serial.println("Chosen notification activated");
         chosenNotificationTimestamp = millis(); // Record the time the notification arrived
